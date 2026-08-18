@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Sudoku</h1>
+        <p>Conquer the grid. Beat your best time and streak!</p>
+        
+        <div class="stats-bar">
+            <span id="timer">⏱️ 02:04</span>
+            <span id="streak">🔥 Streak: 0</span>
+        </div>
+
+        <div class="difficulty-tabs">
+            <button class="tab active" data-diff="easy">Easy</button>
+            <button class="tab" data-diff="medium">Medium</button>
+            <button class="tab" data-diff="hard">Hard</button>
+        </div>
+
+        <div class="main-layout">
+            <div id="board"></div>
+            <div class="sidebar">
+                <div class="ad-box">
+                    <span class="ad-tag">🚀 Promotion Space</span>
+                    <p>High-converting placement area for network listings or deals.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="numpad">
+            <button class="num-btn">1</button>
+            <button class="num-btn">2</button>
+            <button class="num-btn">3</button>
+            <button class="num-btn">4</button>
+            <button class="num-btn">5</button>
+            <button class="num-btn">6</button>
+            <button class="num-btn">7</button>
+            <button class="num-btn">8</button>
+            <button class="num-btn">9</button>
+            <button class="num-btn clr-btn">CLR</button>
+        </div>
+
+        <div class="footer-controls">
+            <span id="game-status">Game On!</span>
+            <button id="new-game">New Game</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
