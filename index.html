@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sudoku & Network Hub</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: #f7f5fa; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         
-        /* Expanded clean container */
         .app-card { background: #ffffff; padding: 32px; border-radius: 20px; box-shadow: 0 10px 35px rgba(74, 46, 93, 0.08); width: 100%; max-width: 760px; display: flex; flex-direction: column; align-items: center; border: 1px solid #efe8f3; }
         
         h1 { color: #4a2e5d; font-size: 28px; margin-bottom: 6px; font-weight: 700; text-align: center; }
@@ -23,16 +27,14 @@
         
         .game-layout { display: flex; gap: 28px; align-items: flex-start; justify-content: center; width: 100%; margin-bottom: 20px; }
         
-        /* Clean grid styling */
         #board { display: grid; grid-template-columns: repeat(9, 42px); grid-template-rows: repeat(9, 42px); background: #4a2e5d; border: 2px solid #4a2e5d; gap: 1px; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 12px rgba(74,46,93,0.1); }
-        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #333; cursor: pointer; user-select: none; width: 42px; height: 42px; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; color: #333; cursor: pointer; user-select: none; width: 42px; height: 42px; }
         .cell:nth-child(3n) { border-right: 2px solid #4a2e5d; }
         .cell:nth-child(9n) { border-right: none; }
-        .cell.preset { background: #fcf8fd; color: #4a2e5d; }
+        .cell.preset { background: #fcf8fd; color: #4a2e5d; font-weight: 700; }
         .cell.selected { background: #e8d7ef !important; outline: 2px solid #4a2e5d; z-index: 2; }
         .cell.error { color: #d32f2f; background: #ffebee; }
         
-        /* Expanded & healthier sidebar panel */
         .tools-panel { display: flex; flex-direction: column; gap: 10px; width: 180px; background: #fcf8fd; padding: 14px; border-radius: 12px; border: 1px dashed #d8c2e6; }
         .tools-title { font-size: 12px; font-weight: 700; color: #4a2e5d; text-align: center; margin-bottom: 4px; letter-spacing: 0.5px; }
         .tool-btn { background: #ffffff; border: 1px solid #e2d3ec; color: #4a2e5d; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: background 0.2s, transform 0.1s; }
@@ -43,9 +45,9 @@
         .partner-space p { font-size: 11px; color: #666; margin: 0; line-height: 1.4; }
         
         .number-pad { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
-        .num-btn { width: 42px; height: 42px; background: #f3edf6; border: 1px solid #e2d3ec; border-radius: 10px; font-size: 16px; font-weight: bold; color: #4a2e5d; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .num-btn { width: 42px; height: 42px; background: #f3edf6; border: 1px solid #e2d3ec; border-radius: 10px; font-size: 16px; font-weight: 600; color: #4a2e5d; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
         .num-btn:hover { background: #e8d7ef; }
-        .clr-btn { width: 52px; font-size: 12px; background: #f9f0f0; border-color: #f2cbcb; color: #c62828; }
+        .clr-btn { width: 52px; font-size: 12px; background: #f9f0f0; border-color: #f2cbcb; color: #c62828; font-weight: 700; }
         
         .action-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 560px; }
         #game-status { font-size: 14px; font-weight: 600; color: #2e7d32; }
