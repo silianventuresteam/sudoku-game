@@ -11,54 +11,55 @@
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background-color: #f7f5fa; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        body { background-color: #f7f5fa; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px; }
         
-        .app-card { background: #ffffff; padding: 32px; border-radius: 20px; box-shadow: 0 10px 35px rgba(74, 46, 93, 0.08); width: 100%; max-width: 760px; display: flex; flex-direction: column; align-items: center; border: 1px solid #efe8f3; }
+        .app-card { background: #ffffff; padding: 20px 24px; border-radius: 20px; box-shadow: 0 10px 35px rgba(74, 46, 93, 0.08); width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center; border: 1px solid #efe8f3; }
         
-        h1 { color: #4a2e5d; font-size: 28px; margin-bottom: 6px; font-weight: 700; text-align: center; }
-        p { color: #666; font-size: 14px; margin-bottom: 20px; text-align: center; }
+        h1 { color: #4a2e5d; font-size: 24px; margin-bottom: 4px; font-weight: 700; text-align: center; }
+        p { color: #666; font-size: 13px; margin-bottom: 16px; text-align: center; }
         
-        .stats-bar { display: flex; gap: 14px; margin-bottom: 20px; }
-        .stat-pill { background: #f3edf6; color: #4a2e5d; padding: 8px 16px; border-radius: 22px; font-size: 13px; font-weight: 600; border: 1px solid #e2d3ec; }
+        .stats-bar { display: flex; gap: 12px; margin-bottom: 16px; }
+        .stat-pill { background: #f3edf6; color: #4a2e5d; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #e2d3ec; }
         
-        .diff-tabs { display: flex; background: #f3edf6; padding: 4px; border-radius: 10px; margin-bottom: 24px; width: 100%; max-width: 440px; }
-        .tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; border: none; background: transparent; }
+        .diff-tabs { display: flex; background: #f3edf6; padding: 3px; border-radius: 10px; margin-bottom: 18px; width: 100%; }
+        .tab { flex: 1; padding: 7px; text-align: center; font-size: 12px; font-weight: 600; color: #666; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; border: none; background: transparent; }
         .tab.active { background: #ffffff; color: #4a2e5d; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         
-        .game-layout { display: flex; gap: 28px; align-items: flex-start; justify-content: center; width: 100%; margin-bottom: 20px; }
-        
-        #board { display: grid; grid-template-columns: repeat(9, 42px); grid-template-rows: repeat(9, 42px); background: #4a2e5d; border: 2px solid #4a2e5d; gap: 1px; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 12px rgba(74,46,93,0.1); }
-        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; color: #333; cursor: pointer; user-select: none; width: 42px; height: 42px; }
+        /* Fully responsive board container */
+        #board { display: grid; grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(9, 1fr); background: #4a2e5d; border: 2px solid #4a2e5d; gap: 1px; border-radius: 6px; overflow: hidden; width: 100%; aspect-ratio: 1 / 1; max-width: 380px; box-shadow: 0 4px 12px rgba(74,46,93,0.1); margin-bottom: 14px; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: clamp(14px, 4.5vw, 20px); font-weight: 600; color: #333; cursor: pointer; user-select: none; }
         .cell:nth-child(3n) { border-right: 2px solid #4a2e5d; }
         .cell:nth-child(9n) { border-right: none; }
         .cell.preset { background: #fcf8fd; color: #4a2e5d; font-weight: 700; }
         .cell.selected { background: #e8d7ef !important; outline: 2px solid #4a2e5d; z-index: 2; }
         .cell.error { color: #d32f2f; background: #ffebee; }
         
-        .tools-panel { display: flex; flex-direction: column; gap: 10px; width: 180px; background: #fcf8fd; padding: 14px; border-radius: 12px; border: 1px dashed #d8c2e6; }
-        .tools-title { font-size: 12px; font-weight: 700; color: #4a2e5d; text-align: center; margin-bottom: 4px; letter-spacing: 0.5px; }
-        .tool-btn { background: #ffffff; border: 1px solid #e2d3ec; color: #4a2e5d; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: background 0.2s, transform 0.1s; }
+        /* Tools & Partner Space directly below grid */
+        .tools-container { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+        .action-row { display: flex; gap: 8px; width: 100%; }
+        .tool-btn { flex: 1; background: #ffffff; border: 1px solid #e2d3ec; color: #4a2e5d; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: background 0.2s, transform 0.1s; }
         .tool-btn:hover { background: #f3edf6; transform: translateY(-1px); }
         
-        .partner-space { margin-top: 8px; padding: 12px 10px; background: #f7f2fa; border-radius: 8px; border: 1px dashed #c9a8df; text-align: center; }
-        .partner-space h4 { font-size: 12px; color: #4a2e5d; margin-bottom: 4px; font-weight: 700; }
-        .partner-space p { font-size: 11px; color: #666; margin: 0; line-height: 1.4; }
+        .partner-space { padding: 10px 12px; background: #fcf8fd; border-radius: 8px; border: 1px dashed #c9a8df; text-align: center; }
+        .partner-space h4 { font-size: 11px; color: #4a2e5d; margin-bottom: 2px; font-weight: 700; }
+        .partner-space p { font-size: 10px; color: #666; margin: 0; line-height: 1.3; }
         
-        .number-pad { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
-        .num-btn { width: 42px; height: 42px; background: #f3edf6; border: 1px solid #e2d3ec; border-radius: 10px; font-size: 16px; font-weight: 600; color: #4a2e5d; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        /* Number Pad */
+        .number-pad { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-bottom: 16px; width: 100%; max-width: 380px; }
+        .num-btn { aspect-ratio: 1 / 1; background: #f3edf6; border: 1px solid #e2d3ec; border-radius: 8px; font-size: clamp(12px, 3.5vw, 16px); font-weight: 600; color: #4a2e5d; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; padding: 0; }
         .num-btn:hover { background: #e8d7ef; }
-        .clr-btn { width: 52px; font-size: 12px; background: #f9f0f0; border-color: #f2cbcb; color: #c62828; font-weight: 700; }
+        .clr-btn { font-size: 10px; background: #f9f0f0; border-color: #f2cbcb; color: #c62828; font-weight: 700; }
         
-        .action-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 560px; }
-        #game-status { font-size: 14px; font-weight: 600; color: #2e7d32; }
-        .primary-btn { background: #4a2e5d; color: #ffffff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .action-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 380px; }
+        #game-status { font-size: 13px; font-weight: 600; color: #2e7d32; }
+        .primary-btn { background: #4a2e5d; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .primary-btn:hover { background: #3b234a; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
-        .modal-content { background: #ffffff; padding: 24px; border-radius: 14px; width: 90%; max-width: 360px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); }
-        .modal-content h3 { color: #4a2e5d; font-size: 16px; }
-        .modal-content textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; resize: none; font-size: 13px; outline: none; }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
+        .modal-content { background: #ffffff; padding: 20px; border-radius: 14px; width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); }
+        .modal-content h3 { color: #4a2e5d; font-size: 15px; }
+        .modal-content textarea { width: 100%; height: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 8px; resize: none; font-size: 12px; outline: none; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
     </style>
 </head>
 <body>
@@ -77,19 +78,18 @@
             <button class="tab" data-diff="hard">Hard</button>
         </div>
 
-        <div class="game-layout">
-            <div id="board"></div>
-            
-            <div class="tools-panel">
-                <div class="tools-title">🚀 Game Tools</div>
-                <button id="hint-btn" class="tool-btn">💡 Get Hint</button>
+        <div id="board"></div>
+
+        <div class="tools-container">
+            <div class="action-row">
+                <button id="hint-btn" class="tool-btn">💡 Hint</button>
                 <button id="undo-btn" class="tool-btn">↩️ Undo</button>
                 <button id="feedback-btn" class="tool-btn">💬 Feedback</button>
-                
-                <div class="partner-space">
-                    <h4>Partner Space</h4>
-                    <p>Optimized placement area for network listings or deals.</p>
-                </div>
+            </div>
+            
+            <div class="partner-space">
+                <h4>Partner Space</h4>
+                <p>Optimized placement area for network listings or deals.</p>
             </div>
         </div>
 
@@ -117,7 +117,7 @@
             <h3>Send Feedback</h3>
             <textarea id="feedback-text" placeholder="Share your thoughts..."></textarea>
             <div class="modal-actions">
-                <button id="feedback-cancel" class="tool-btn">Cancel</button>
+                <button id="feedback-cancel" class="tool-btn" style="flex:unset; padding:6px 12px;">Cancel</button>
                 <button id="feedback-submit" class="primary-btn">Submit</button>
             </div>
         </div>
@@ -221,7 +221,7 @@
                         streak++;
                         streakDisplay.textContent = `🔥 Streak: ${streak}`;
                     } else {
-                        statusDisplay.textContent = "Contains errors. Check highlighted cells.";
+                        statusDisplay.textContent = "Contains errors.";
                         statusDisplay.style.color = "#d32f2f";
                     }
                 }
@@ -263,7 +263,7 @@
 
             hintBtn.addEventListener("click", () => {
                 if (!selectedCell || selectedCell.classList.contains("preset")) {
-                    statusDisplay.textContent = "Select an empty cell first!";
+                    statusDisplay.textContent = "Select empty cell!";
                     statusDisplay.style.color = "#d32f2f";
                     return;
                 }
@@ -292,36 +292,21 @@
 
             loadBoard(currentDifficulty);
 
-            // Feedback modal logic
             const feedbackBtn = document.getElementById("feedback-btn");
             const feedbackModal = document.getElementById("feedback-modal");
             const feedbackCancel = document.getElementById("feedback-cancel");
             const feedbackSubmit = document.getElementById("feedback-submit");
             const feedbackText = document.getElementById("feedback-text");
 
-            if (feedbackBtn) {
-                feedbackBtn.addEventListener("click", () => {
-                    feedbackModal.style.display = "flex";
-                    feedbackText.value = "";
-                });
-            }
-
-            if (feedbackCancel) {
-                feedbackCancel.addEventListener("click", () => {
-                    feedbackModal.style.display = "none";
-                });
-            }
-
-            if (feedbackSubmit) {
-                feedbackSubmit.addEventListener("click", () => {
-                    const val = feedbackText.value.trim();
-                    if (val) {
-                        statusDisplay.textContent = "Thank you for your feedback! 🙏";
-                        statusDisplay.style.color = "#4a2e5d";
-                    }
-                    feedbackModal.style.display = "none";
-                });
-            }
+            if (feedbackBtn) feedbackBtn.addEventListener("click", () => { feedbackModal.style.display = "flex"; feedbackText.value = ""; });
+            if (feedbackCancel) feedbackCancel.addEventListener("click", () => { feedbackModal.style.display = "none"; });
+            if (feedbackSubmit) feedbackSubmit.addEventListener("click", () => {
+                if (feedbackText.value.trim()) {
+                    statusDisplay.textContent = "Feedback received! 🙏";
+                    statusDisplay.style.color = "#4a2e5d";
+                }
+                feedbackModal.style.display = "none";
+            });
         });
     </script>
 </body>
