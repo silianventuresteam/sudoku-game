@@ -7,42 +7,56 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f7f5fa; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .app-card { background: #ffffff; padding: 24px; border-radius: 16px; box-shadow: 0 8px 30px rgba(74, 46, 93, 0.08); width: 100%; max-width: 650px; display: flex; flex-direction: column; align-items: center; border: 1px solid #efe8f3; }
-        h1 { color: #4a2e5d; font-size: 26px; margin-bottom: 4px; font-weight: 700; text-align: center; }
-        p { color: #666; font-size: 14px; margin-bottom: 16px; text-align: center; }
-        .stats-bar { display: flex; gap: 12px; margin-bottom: 16px; }
-        .stat-pill { background: #f3edf6; color: #4a2e5d; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #e2d3ec; }
-        .diff-tabs { display: flex; background: #f3edf6; padding: 4px; border-radius: 10px; margin-bottom: 20px; width: 100%; max-width: 400px; }
+        
+        /* Expanded clean container */
+        .app-card { background: #ffffff; padding: 32px; border-radius: 20px; box-shadow: 0 10px 35px rgba(74, 46, 93, 0.08); width: 100%; max-width: 760px; display: flex; flex-direction: column; align-items: center; border: 1px solid #efe8f3; }
+        
+        h1 { color: #4a2e5d; font-size: 28px; margin-bottom: 6px; font-weight: 700; text-align: center; }
+        p { color: #666; font-size: 14px; margin-bottom: 20px; text-align: center; }
+        
+        .stats-bar { display: flex; gap: 14px; margin-bottom: 20px; }
+        .stat-pill { background: #f3edf6; color: #4a2e5d; padding: 8px 16px; border-radius: 22px; font-size: 13px; font-weight: 600; border: 1px solid #e2d3ec; }
+        
+        .diff-tabs { display: flex; background: #f3edf6; padding: 4px; border-radius: 10px; margin-bottom: 24px; width: 100%; max-width: 440px; }
         .tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; border: none; background: transparent; }
         .tab.active { background: #ffffff; color: #4a2e5d; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .game-layout { display: flex; gap: 20px; align-items: flex-start; justify-content: center; width: 100%; margin-bottom: 16px; }
-        #board { display: grid; grid-template-columns: repeat(9, 36px); grid-template-rows: repeat(9, 36px); background: #4a2e5d; border: 2px solid #4a2e5d; gap: 1px; }
-        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: #333; cursor: pointer; user-select: none; width: 36px; height: 36px; }
+        
+        .game-layout { display: flex; gap: 28px; align-items: flex-start; justify-content: center; width: 100%; margin-bottom: 20px; }
+        
+        /* Clean grid styling */
+        #board { display: grid; grid-template-columns: repeat(9, 42px); grid-template-rows: repeat(9, 42px); background: #4a2e5d; border: 2px solid #4a2e5d; gap: 1px; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 12px rgba(74,46,93,0.1); }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #333; cursor: pointer; user-select: none; width: 42px; height: 42px; }
         .cell:nth-child(3n) { border-right: 2px solid #4a2e5d; }
         .cell:nth-child(9n) { border-right: none; }
         .cell.preset { background: #fcf8fd; color: #4a2e5d; }
         .cell.selected { background: #e8d7ef !important; outline: 2px solid #4a2e5d; z-index: 2; }
         .cell.error { color: #d32f2f; background: #ffebee; }
-        .tools-panel { display: flex; flex-direction: column; gap: 8px; width: 130px; background: #fcf8fd; padding: 10px; border-radius: 10px; border: 1px dashed #d8c2e6; }
-        .tools-title { font-size: 11px; font-weight: 700; color: #4a2e5d; text-align: center; margin-bottom: 2px; }
-        .tool-btn { background: #ffffff; border: 1px solid #e2d3ec; color: #4a2e5d; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: background 0.2s; }
-        .tool-btn:hover { background: #f3edf6; }
-        .partner-space { margin-top: 6px; padding: 8px; background: #f7f2fa; border-radius: 6px; border: 1px dashed #c9a8df; text-align: center; }
-        .partner-space h4 { font-size: 11px; color: #4a2e5d; margin-bottom: 2px; }
-        .partner-space p { font-size: 10px; color: #777; margin: 0; line-height: 1.2; }
-        .number-pad { display: flex; gap: 6px; margin-bottom: 16px; justify-content: center; }
-        .num-btn { width: 36px; height: 36px; background: #f3edf6; border: 1px solid #e2d3ec; border-radius: 8px; font-size: 15px; font-weight: bold; color: #4a2e5d; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        
+        /* Expanded & healthier sidebar panel */
+        .tools-panel { display: flex; flex-direction: column; gap: 10px; width: 180px; background: #fcf8fd; padding: 14px; border-radius: 12px; border: 1px dashed #d8c2e6; }
+        .tools-title { font-size: 12px; font-weight: 700; color: #4a2e5d; text-align: center; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .tool-btn { background: #ffffff; border: 1px solid #e2d3ec; color: #4a2e5d; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: background 0.2s, transform 0.1s; }
+        .tool-btn:hover { background: #f3edf6; transform: translateY(-1px); }
+        
+        .partner-space { margin-top: 8px; padding: 12px 10px; background: #f7f2fa; border-radius: 8px; border: 1px dashed #c9a8df; text-align: center; }
+        .partner-space h4 { font-size: 12px; color: #4a2e5d; margin-bottom: 4px; font-weight: 700; }
+        .partner-space p { font-size: 11px; color: #666; margin: 0; line-height: 1.4; }
+        
+        .number-pad { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
+        .num-btn { width: 42px; height: 42px; background: #f3edf6; border: 1px solid #e2d3ec; border-radius: 10px; font-size: 16px; font-weight: bold; color: #4a2e5d; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
         .num-btn:hover { background: #e8d7ef; }
-        .clr-btn { width: 44px; font-size: 12px; background: #f9f0f0; border-color: #f2cbcb; color: #c62828; }
-        .action-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 480px; }
+        .clr-btn { width: 52px; font-size: 12px; background: #f9f0f0; border-color: #f2cbcb; color: #c62828; }
+        
+        .action-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 560px; }
         #game-status { font-size: 14px; font-weight: 600; color: #2e7d32; }
-        .primary-btn { background: #4a2e5d; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .primary-btn { background: #4a2e5d; color: #ffffff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .primary-btn:hover { background: #3b234a; }
+        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
-        .modal-content { background: #ffffff; padding: 20px; border-radius: 12px; width: 90%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .modal-content { background: #ffffff; padding: 24px; border-radius: 14px; width: 90%; max-width: 360px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); }
         .modal-content h3 { color: #4a2e5d; font-size: 16px; }
-        .modal-content textarea { width: 100%; height: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: none; font-size: 13px; outline: none; }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+        .modal-content textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; resize: none; font-size: 13px; outline: none; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
     </style>
 </head>
 <body>
