@@ -1,49 +1,200 @@
-body { font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8f6fc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: #333; padding: 10px; box-sizing: border-box; }
-.game-container { display: flex; flex-direction: column; align-items: center; background: #fff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); width: 100%; max-width: 460px; box-sizing: border-box; }
-h1 { margin: 0 0 5px 0; color: #4a2e5d; font-size: 26px; }
-p { margin: 0 0 15px 0; font-size: 13px; color: #666; text-align: center; }
-.stats-bar { display: flex; gap: 20px; background: #fcf8fd; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px; font-weight: bold; font-size: 13px; }
-.difficulty-tabs { display: flex; background: #f3ecf5; border-radius: 8px; padding: 3px; margin-bottom: 15px; width: 100%; box-sizing: border-box; }
-.tab { flex: 1; border: none; background: transparent; padding: 8px; font-weight: bold; cursor: pointer; border-radius: 6px; color: #666; font-size: 13px; transition: all 0.2s; }
-.tab.active { background: #fff; color: #4a2e5d; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.main-layout { display: flex; gap: 15px; margin-bottom: 15px; width: 100%; justify-content: center; align-items: stretch; }
-#board { display: grid; grid-template-columns: repeat(9, 36px); grid-template-rows: repeat(9, 36px); background: #4a2e5d; border: 2px solid #4a2e5d; gap: 1px; }
-.cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: #333; cursor: pointer; border: none; outline: none; text-align: center; width: 36px; height: 36px; padding: 0; user-select: none; }
-.cell:nth-child(3n) { border-right: 2px solid #4a2e5d; }
-.cell:nth-child(9n) { border-right: none; }
-.cell.preset { background: #fcf8fd; color: #4a2e5d; }
-.cell.selected { background: #e8d7ef !important; outline: 2px solid #4a2e5d; z-index: 2; }
-.cell.error { color: #d32f2f; background: #ffebee; }
-.sidebar { width: 130px; border: 2px dashed #e8d7ef; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; background: #faf4fc; box-sizing: border-box; }
-.sidebar-widget { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-.tool-btn { background: #f3ecf5; border: none; padding: 6px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #4a2e5d; cursor: pointer; width: 100%; transition: background 0.2s; }
-.tool-btn:hover { background: #e8d7ef; }
-.ad-tag { font-size: 11px; font-weight: bold; color: #4a2e5d; display: block; margin-bottom: 4px; }
-.ad-box { width: 100%; }
-.ad-box p { font-size: 10px; color: #888; margin: 0; }
-.numpad { display: flex; gap: 5px; margin-bottom: 15px; justify-content: center; width: 100%; flex-wrap: wrap; }
-.num-btn { width: 34px; height: 34px; border-radius: 50%; border: none; background: #f3ecf5; color: #4a2e5d; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-.num-btn:hover { background: #e8d7ef; }
-.clr-btn { font-size: 10px; width: 40px; border-radius: 14px; }
-.footer-controls { display: flex; justify-content: space-between; width: 100%; align-items: center; box-sizing: border-box; }
-#game-status { font-weight: bold; color: #2e7d32; font-size: 13px; }
-#new-game { background: #4a2e5d; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s; }
-#new-game:hover { background: #382246; }
+document.addEventListener("DOMContentLoaded", () => {
+    const board = document.getElementById("board");
+    const timerDisplay = document.getElementById("timer");
+    const streakDisplay = document.getElementById("streak");
+    const statusDisplay = document.getElementById("game-status");
+    const newGameBtn = document.getElementById("new-game");
+    const hintBtn = document.getElementById("hint-btn");
+    const undoBtn = document.getElementById("undo-btn");
+    const tabs = document.querySelectorAll(".tab");
+    const numBtns = document.querySelectorAll(".num-btn");
 
-@media (max-width: 500px) {
-    .main-layout { flex-direction: column; align-items: center; }
-    .sidebar { width: 100%; max-width: 326px; height: auto; flex-direction: row; justify-content: space-around; padding: 8px; }
-    .sidebar-widget { width: 45%; }
-    .ad-box { display: none; }
-    #board { grid-template-columns: repeat(9, 32px); grid-template-rows: repeat(9, 32px); }
-    .cell { width: 32px; height: 32px; font-size: 15px; }
-}
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 100; }
-.modal-content { background: #fff; padding: 20px; border-radius: 12px; width: 90%; max-width: 300px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-.modal-content h3 { margin: 0; color: #4a2e5d; font-size: 18px; }
-.modal-content p { margin: 0; font-size: 12px; color: #666; text-align: left; }
-#feedback-text { width: 100%; height: 80px; border: 1px solid #e8d7ef; border-radius: 6px; padding: 8px; font-family: "Plus Jakarta Sans", sans-serif; font-size: 12px; box-sizing: border-box; resize: none; outline: none; }
-#feedback-text:focus { border-color: #4a2e5d; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-.modal-actions .tool-btn { width: auto; padding: 6px 12px; }
-.primary-tool { background: #4a2e5d !important; color: #fff !important; }
+    let timer = 0;
+    let timerInterval = null;
+    let streak = 0;
+    let selectedCell = null;
+    let currentDifficulty = "easy";
+    let moveHistory = [];
+
+    // Valid puzzles with solution mapping
+    const gameData = {
+        easy: {
+            puzzle: "530070000600195000098000060800060003400803001700020006060002800004190050000080079",
+            solution: "534678912672195348198342567859761423426853791713924856961537284287419635345286179"
+        },
+        medium: {
+            puzzle: "000700000100000000000430200000000000000000000000000000000000000000000000000000000",
+            solution: "236794185154826973978435216397651842512348769846279351783162495625983571461527938"
+        },
+        hard: {
+            puzzle: "000000000000003085001020000000507000004000100090000000500000073002010000000040009",
+            solution: "987654321246193785351827469618537942724968153293415678569271834432716599157349269"
+        }
+    };
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timer = 0;
+        timerInterval = setInterval(() => {
+            timer++;
+            let mins = Math.floor(timer / 60).toString().padStart(2, '0');
+            let secs = (timer % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `⏱️ ${mins}:${secs}`;
+        }, 1000);
+    }
+
+    function loadBoard(diff) {
+        board.innerHTML = "";
+        selectedCell = null;
+        moveHistory = [];
+        statusDisplay.textContent = "Game On!";
+        statusDisplay.style.color = "#2e7d32";
+        startTimer();
+
+        const data = gameData[diff] || gameData.easy;
+        const puzzleStr = data.puzzle;
+
+        for (let i = 0; i < 81; i++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            const val = puzzleStr[i];
+            cell.dataset.index = i;
+            cell.dataset.solution = data.solution[i];
+
+            if (val !== "0") {
+                cell.textContent = val;
+                cell.classList.add("preset");
+            } else {
+                cell.addEventListener("click", () => {
+                    document.querySelectorAll(".cell").forEach(c => c.classList.remove("selected"));
+                    selectedCell = cell;
+                    cell.classList.add("selected");
+                });
+            }
+            board.appendChild(cell);
+        }
+    }
+
+    function checkWinCondition() {
+        const cells = document.querySelectorAll(".cell");
+        let complete = true;
+        let correct = true;
+
+        cells.forEach(cell => {
+            if (!cell.textContent) {
+                complete = false;
+            } else if (cell.textContent !== cell.dataset.solution) {
+                correct = false;
+            }
+        });
+
+        if (complete) {
+            clearInterval(timerInterval);
+            if (correct) {
+                statusDisplay.textContent = "Solved Successfully! 🎉";
+                statusDisplay.style.color = "#2e7d32";
+                streak++;
+                streakDisplay.textContent = `🔥 Streak: ${streak}`;
+            } else {
+                statusDisplay.textContent = "Contains errors. Check highlighted cells.";
+                statusDisplay.style.color = "#d32f2f";
+            }
+        }
+    }
+
+    numBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            if (!selectedCell || selectedCell.classList.contains("preset")) return;
+            const oldValue = selectedCell.textContent;
+            
+            if (btn.classList.contains("clr-btn")) {
+                selectedCell.textContent = "";
+                selectedCell.classList.remove("error");
+                moveHistory.push({ cell: selectedCell, val: oldValue });
+            } else {
+                const num = btn.textContent;
+                selectedCell.textContent = num;
+                moveHistory.push({ cell: selectedCell, val: oldValue });
+
+                if (num !== selectedCell.dataset.solution) {
+                    selectedCell.classList.add("error");
+                } else {
+                    selectedCell.classList.remove("error");
+                }
+            }
+            checkWinCondition();
+        });
+    });
+
+    undoBtn.addEventListener("click", () => {
+        if (moveHistory.length === 0) return;
+        const lastMove = moveHistory.pop();
+        lastMove.cell.textContent = lastMove.val;
+        lastMove.cell.classList.remove("error");
+        document.querySelectorAll(".cell").forEach(c => c.classList.remove("selected"));
+        selectedCell = lastMove.cell;
+        selectedCell.classList.add("selected");
+    });
+
+    hintBtn.addEventListener("click", () => {
+        if (!selectedCell || selectedCell.classList.contains("preset")) {
+            statusDisplay.textContent = "Select an empty cell first!";
+            statusDisplay.style.color = "#d32f2f";
+            return;
+        }
+        const correctVal = selectedCell.dataset.solution;
+        const oldValue = selectedCell.textContent;
+        selectedCell.textContent = correctVal;
+        selectedCell.classList.remove("error");
+        moveHistory.push({ cell: selectedCell, val: oldValue });
+        statusDisplay.textContent = "Hint applied!";
+        statusDisplay.style.color = "#4a2e5d";
+        checkWinCondition();
+    });
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            currentDifficulty = tab.getAttribute("data-diff");
+            loadBoard(currentDifficulty);
+        });
+    });
+
+    newGameBtn.addEventListener("click", () => {
+        loadBoard(currentDifficulty);
+    });
+
+    loadBoard(currentDifficulty);
+
+    // Feedback feature logic
+    const feedbackBtn = document.getElementById("feedback-btn");
+    const feedbackModal = document.getElementById("feedback-modal");
+    const feedbackCancel = document.getElementById("feedback-cancel");
+    const feedbackSubmit = document.getElementById("feedback-submit");
+    const feedbackText = document.getElementById("feedback-text");
+
+    if (feedbackBtn) {
+        feedbackBtn.addEventListener("click", () => {
+            feedbackModal.style.display = "flex";
+            feedbackText.value = "";
+        });
+    }
+
+    if (feedbackCancel) {
+        feedbackCancel.addEventListener("click", () => {
+            feedbackModal.style.display = "none";
+        });
+    }
+
+    if (feedbackSubmit) {
+        feedbackSubmit.addEventListener("click", () => {
+            const val = feedbackText.value.trim();
+            if (val) {
+                statusDisplay.textContent = "Thank you for your feedback! 🙏";
+                statusDisplay.style.color = "#4a2e5d";
+            }
+            feedbackModal.style.display = "none";
+        });
+    }
+});
