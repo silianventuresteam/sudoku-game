@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku</title>
+    <title>Sudoku - Modern Minimalist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +15,7 @@
         <p>Conquer the grid. Beat your best time and streak!</p>
         
         <div class="stats-bar">
-            <span id="timer">⏱️ 02:04</span>
+            <span id="timer">⏱️ 00:00</span>
             <span id="streak">🔥 Streak: 0</span>
         </div>
 
@@ -25,9 +28,15 @@
         <div class="main-layout">
             <div id="board"></div>
             <div class="sidebar">
+                <span class="ad-tag">🚀 Game Tools</span>
+                <div class="sidebar-widget">
+                    <button id="hint-btn" class="tool-btn">💡 Get Hint</button>
+                    <button id="undo-btn" class="tool-btn">↩️ Undo</button>
+                    <button id="feedback-btn" class="tool-btn">💬 Feedback</button>
+                </div>
                 <div class="ad-box">
-                    <span class="ad-tag">🚀 Promotion Space</span>
-                    <p>High-converting placement area for network listings or deals.</p>
+                    <span class="ad-tag">Partner Space</span>
+                    <p>Optimized placement area for network listings or deals.</p>
                 </div>
             </div>
         </div>
@@ -50,6 +59,19 @@
             <button id="new-game">New Game</button>
         </div>
     </div>
+
+    <div id="feedback-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Send Feedback</h3>
+            <p>How is your experience with the game?</p>
+            <textarea id="feedback-text" placeholder="Type your thoughts here..."></textarea>
+            <div class="modal-actions">
+                <button id="feedback-cancel" class="tool-btn">Cancel</button>
+                <button id="feedback-submit" class="tool-btn primary-tool">Submit</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
