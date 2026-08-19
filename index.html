@@ -143,40 +143,7 @@
             let selectedCell = null;
             let currentDifficulty = "easy";
             let moveHistory = [];
-
-            // Multiple puzzle variations for each difficulty
-            const gameData = {
-                easy: [
-                    {
-                        puzzle: "530070000600195000098000060800060003400803001700020006060002800004190050000080079",
-                        solution: "534678912672195348198342567859761423426853791713924856961537284287419635345286179"
-                    },
-                    {
-                        puzzle: "003020600900305001018060040008102900700000008006708200020090350600203009004010700",
-                        solution: "873924651924385761518761243348152976765439128296718235127694358659243819432816792"
-                    }
-                ],
-                medium: [
-                    {
-                        puzzle: "000700000100000000000430200000000000000000000000000000000000000000000000000000000",
-                        solution: "236794185154826973978435216397651842512348769846279351783162495625983571461527938"
-                    },
-                    {
-                        puzzle: "000000120000030002000400000005070000600000003000010900080000600100050000078000000",
-                        solution: "349586127652731492718429365235174896691258743478613952583942617164857239927365984"
-                    }
-                ],
-                hard: [
-                    {
-                        puzzle: "000000000000003085001020000000507000004000100090000000500000073002010000000040009",
-                        solution: "987654321246193785351827469618537942724968153293415678569271834432716599157349269"
-                    },
-                    {
-                        puzzle: "100000000040000000002000000000050000000008032000000100000040000000000006003007000",
-                        solution: "135678924647291538892345671753429186219758432486132195271843965968512347324967851"
-                    }
-                ]
-            };
+            let currentSolutionStr = "";
 
             function startTimer() {
                 clearInterval(timerInterval);
@@ -189,6 +156,65 @@
                 }, 1000);
             }
 
+            // Sudoku Generator Helpers
+            function isValid(grid, row, col, num) {
+                for (let x = 0; x < 9; x++) {
+                    if (grid[row][x] === num || grid[x][col] === num) return false;
+                }
+                let startRow = row - (row % 3), startCol = col - (col % 3);
+                for (let r = 0; r < 3; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        if (grid[r + startRow][c + startCol] === num) return false;
+                    }
+                }
+                return true;
+            }
+
+            function solveGrid(grid) {
+                for (let r = 0; r < 9; r++) {
+                    for (let c = 0; c < 9; c++) {
+                        if (grid[r][c] === 0) {
+                            let nums = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
+                            for (let num of nums) {
+                                if (isValid(grid, r, c, num)) {
+                                    grid[r][c] = num;
+                                    if (solveGrid(grid)) return true;
+                                    grid[r][c] = 0;
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            function generateSudoku(diff) {
+                let grid = Array(9).fill(0).map(() => Array(9).fill(0));
+                solveGrid(grid);
+                let solutionGrid = grid.map(row => [...row]);
+                
+                let clues = 45; // Easy
+                if (diff === "medium") clues = 32;
+                if (diff === "hard") clues = 25;
+
+                let puzzleGrid = solutionGrid.map(row => [...row]);
+                let removed = 81 - clues;
+                while (removed > 0) {
+                    let r = Math.floor(Math.random() * 9);
+                    let c = Math.floor(Math.random() * 9);
+                    if (puzzleGrid[r][c] !== 0) {
+                        puzzleGrid[r][c] = 0;
+                        removed--;
+                    }
+                }
+
+                return {
+                    puzzle: puzzleGrid.flat().join("").replace(/0/g, "0"),
+                    solution: solutionGrid.flat().join("")
+                };
+            }
+
             function loadBoard(diff) {
                 board.innerHTML = "";
                 selectedCell = null;
@@ -197,18 +223,16 @@
                 statusDisplay.style.color = "#2e7d32";
                 startTimer();
 
-                const list = gameData[diff] || gameData.easy;
-                // Randomly select one of the puzzle variations for the active difficulty
-                const randomIndex = Math.floor(Math.random() * list.length);
-                const data = list[randomIndex];
+                const data = generateSudoku(diff);
                 const puzzleStr = data.puzzle;
+                currentSolutionStr = data.solution;
 
                 for (let i = 0; i < 81; i++) {
                     const cell = document.createElement("div");
                     cell.className = "cell";
                     const val = puzzleStr[i];
                     cell.dataset.index = i;
-                    cell.dataset.solution = data.solution[i];
+                    cell.dataset.solution = currentSolutionStr[i];
 
                     if (val !== "0") {
                         cell.textContent = val;
@@ -310,12 +334,10 @@
                 });
             });
 
-            // New Game button now shifts to a fresh random board within the current difficulty
             newGameBtn.addEventListener("click", () => {
                 loadBoard(currentDifficulty);
             });
 
-            // Initial board load on startup
             loadBoard(currentDifficulty);
         });
     </script>
