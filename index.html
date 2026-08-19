@@ -294,21 +294,7 @@
 
             loadBoard(currentDifficulty);
 
-            const feedbackBtn = document.getElementById("feedback-btn");
-            const feedbackModal = document.getElementById("feedback-modal");
-            const feedbackCancel = document.getElementById("feedback-cancel");
-            const feedbackSubmit = document.getElementById("feedback-submit");
-            const feedbackText = document.getElementById("feedback-text");
-
-            if (feedbackBtn) feedbackBtn.addEventListener("click", () => { feedbackModal.style.display = "flex"; feedbackText.value = ""; });
-            if (feedbackCancel) feedbackCancel.addEventListener("click", () => { feedbackModal.style.display = "none"; });
-            if (feedbackSubmit) feedbackSubmit.addEventListener("click", () => {
-                if (feedbackText.value.trim()) {
-                    statusDisplay.textContent = "Feedback received! 🙏";
-                    statusDisplay.style.color = "#4a2e5d";
-                }
-                feedbackModal.style.display = "none";
-            });
+        
         });
     </script>
 </body>
