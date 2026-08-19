@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentDifficulty = "easy";
     let moveHistory = [];
 
-    // Valid puzzles with solution mapping
     const gameData = {
         easy: {
             puzzle: "530070000600195000098000060800060003400803001700020006060002800004190050000080079",
