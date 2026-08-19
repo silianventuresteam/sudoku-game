@@ -3,45 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku - Modern Minimalist</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>Sudoku & Network Hub</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f7f5fa; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .app-card { background: #ffffff; padding: 24px; border-radius: 16px; box-shadow: 0 8px 30px rgba(74, 46, 93, 0.08); width: 100%; max-width: 650px; display: flex; flex-direction: column; align-items: center; border: 1px solid #efe8f3; }
+        h1 { color: #4a2e5d; font-size: 26px; margin-bottom: 4px; font-weight: 700; text-align: center; }
+        p { color: #666; font-size: 14px; margin-bottom: 16px; text-align: center; }
+        .stats-bar { display: flex; gap: 12px; margin-bottom: 16px; }
+        .stat-pill { background: #f3edf6; color: #4a2e5d; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #e2d3ec; }
+        .diff-tabs { display: flex; background: #f3edf6; padding: 4px; border-radius: 10px; margin-bottom: 20px; width: 100%; max-width: 400px; }
+        .tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; border: none; background: transparent; }
+        .tab.active { background: #ffffff; color: #4a2e5d; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .game-layout { display: flex; gap: 20px; align-items: flex-start; justify-content: center; width: 100%; margin-bottom: 16px; }
+        #board { display: grid; grid-template-columns: repeat(9, 36px); grid-template-rows: repeat(9, 36px); background: #4a2e5d; border: 2px solid #4a2e5d; gap: 1px; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: #333; cursor: pointer; user-select: none; width: 36px; height: 36px; }
+        .cell:nth-child(3n) { border-right: 2px solid #4a2e5d; }
+        .cell:nth-child(9n) { border-right: none; }
+        .cell.preset { background: #fcf8fd; color: #4a2e5d; }
+        .cell.selected { background: #e8d7ef !important; outline: 2px solid #4a2e5d; z-index: 2; }
+        .cell.error { color: #d32f2f; background: #ffebee; }
+        .tools-panel { display: flex; flex-direction: column; gap: 8px; width: 130px; background: #fcf8fd; padding: 10px; border-radius: 10px; border: 1px dashed #d8c2e6; }
+        .tools-title { font-size: 11px; font-weight: 700; color: #4a2e5d; text-align: center; margin-bottom: 2px; }
+        .tool-btn { background: #ffffff; border: 1px solid #e2d3ec; color: #4a2e5d; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: background 0.2s; }
+        .tool-btn:hover { background: #f3edf6; }
+        .partner-space { margin-top: 6px; padding: 8px; background: #f7f2fa; border-radius: 6px; border: 1px dashed #c9a8df; text-align: center; }
+        .partner-space h4 { font-size: 11px; color: #4a2e5d; margin-bottom: 2px; }
+        .partner-space p { font-size: 10px; color: #777; margin: 0; line-height: 1.2; }
+        .number-pad { display: flex; gap: 6px; margin-bottom: 16px; justify-content: center; }
+        .num-btn { width: 36px; height: 36px; background: #f3edf6; border: 1px solid #e2d3ec; border-radius: 8px; font-size: 15px; font-weight: bold; color: #4a2e5d; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .num-btn:hover { background: #e8d7ef; }
+        .clr-btn { width: 44px; font-size: 12px; background: #f9f0f0; border-color: #f2cbcb; color: #c62828; }
+        .action-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 480px; }
+        #game-status { font-size: 14px; font-weight: 600; color: #2e7d32; }
+        .primary-btn { background: #4a2e5d; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .primary-btn:hover { background: #3b234a; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: #ffffff; padding: 20px; border-radius: 12px; width: 90%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .modal-content h3 { color: #4a2e5d; font-size: 16px; }
+        .modal-content textarea { width: 100%; height: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: none; font-size: 13px; outline: none; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    </style>
 </head>
 <body>
-    <div class="game-container">
+    <div class="app-card">
         <h1>Sudoku</h1>
         <p>Conquer the grid. Beat your best time and streak!</p>
         
         <div class="stats-bar">
-            <span id="timer">⏱️ 00:00</span>
-            <span id="streak">🔥 Streak: 0</span>
+            <div id="timer" class="stat-pill">⏱️ 00:00</div>
+            <div id="streak" class="stat-pill">🔥 Streak: 0</div>
         </div>
 
-        <div class="difficulty-tabs">
+        <div class="diff-tabs">
             <button class="tab active" data-diff="easy">Easy</button>
             <button class="tab" data-diff="medium">Medium</button>
             <button class="tab" data-diff="hard">Hard</button>
         </div>
 
-        <div class="main-layout">
+        <div class="game-layout">
             <div id="board"></div>
-            <div class="sidebar">
-                <span class="ad-tag">🚀 Game Tools</span>
-                <div class="sidebar-widget">
-                    <button id="hint-btn" class="tool-btn">💡 Get Hint</button>
-                    <button id="undo-btn" class="tool-btn">↩️ Undo</button>
-                    <button id="feedback-btn" class="tool-btn">💬 Feedback</button>
-                </div>
-                <div class="ad-box">
-                    <span class="ad-tag">Partner Space</span>
+            
+            <div class="tools-panel">
+                <div class="tools-title">🚀 Game Tools</div>
+                <button id="hint-btn" class="tool-btn">💡 Get Hint</button>
+                <button id="undo-btn" class="tool-btn">↩️ Undo</button>
+                <button id="feedback-btn" class="tool-btn">💬 Feedback</button>
+                
+                <div class="partner-space">
+                    <h4>Partner Space</h4>
                     <p>Optimized placement area for network listings or deals.</p>
                 </div>
             </div>
         </div>
 
-        <div class="numpad">
+        <div class="number-pad">
             <button class="num-btn">1</button>
             <button class="num-btn">2</button>
             <button class="num-btn">3</button>
@@ -54,24 +90,223 @@
             <button class="num-btn clr-btn">CLR</button>
         </div>
 
-        <div class="footer-controls">
+        <div class="action-bar">
             <span id="game-status">Game On!</span>
-            <button id="new-game">New Game</button>
+            <button id="new-game" class="primary-btn">New Game</button>
         </div>
     </div>
 
-    <div id="feedback-modal" class="modal-overlay" style="display: none;">
+    <div id="feedback-modal" class="modal-overlay">
         <div class="modal-content">
             <h3>Send Feedback</h3>
-            <p>How is your experience with the game?</p>
-            <textarea id="feedback-text" placeholder="Type your thoughts here..."></textarea>
+            <textarea id="feedback-text" placeholder="Share your thoughts..."></textarea>
             <div class="modal-actions">
                 <button id="feedback-cancel" class="tool-btn">Cancel</button>
-                <button id="feedback-submit" class="tool-btn primary-tool">Submit</button>
+                <button id="feedback-submit" class="primary-btn">Submit</button>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const board = document.getElementById("board");
+            const timerDisplay = document.getElementById("timer");
+            const streakDisplay = document.getElementById("streak");
+            const statusDisplay = document.getElementById("game-status");
+            const newGameBtn = document.getElementById("new-game");
+            const hintBtn = document.getElementById("hint-btn");
+            const undoBtn = document.getElementById("undo-btn");
+            const tabs = document.querySelectorAll(".tab");
+            const numBtns = document.querySelectorAll(".num-btn");
+
+            let timer = 0;
+            let timerInterval = null;
+            let streak = 0;
+            let selectedCell = null;
+            let currentDifficulty = "easy";
+            let moveHistory = [];
+
+            const gameData = {
+                easy: {
+                    puzzle: "530070000600195000098000060800060003400803001700020006060002800004190050000080079",
+                    solution: "534678912672195348198342567859761423426853791713924856961537284287419635345286179"
+                },
+                medium: {
+                    puzzle: "000700000100000000000430200000000000000000000000000000000000000000000000000000000",
+                    solution: "236794185154826973978435216397651842512348769846279351783162495625983571461527938"
+                },
+                hard: {
+                    puzzle: "000000000000003085001020000000507000004000100090000000500000073002010000000040009",
+                    solution: "987654321246193785351827469618537942724968153293415678569271834432716599157349269"
+                }
+            };
+
+            function startTimer() {
+                clearInterval(timerInterval);
+                timer = 0;
+                timerInterval = setInterval(() => {
+                    timer++;
+                    let mins = Math.floor(timer / 60).toString().padStart(2, '0');
+                    let secs = (timer % 60).toString().padStart(2, '0');
+                    timerDisplay.textContent = `⏱️ ${mins}:${secs}`;
+                }, 1000);
+            }
+
+            function loadBoard(diff) {
+                board.innerHTML = "";
+                selectedCell = null;
+                moveHistory = [];
+                statusDisplay.textContent = "Game On!";
+                statusDisplay.style.color = "#2e7d32";
+                startTimer();
+
+                const data = gameData[diff] || gameData.easy;
+                const puzzleStr = data.puzzle;
+
+                for (let i = 0; i < 81; i++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    const val = puzzleStr[i];
+                    cell.dataset.index = i;
+                    cell.dataset.solution = data.solution[i];
+
+                    if (val !== "0") {
+                        cell.textContent = val;
+                        cell.classList.add("preset");
+                    } else {
+                        cell.addEventListener("click", () => {
+                            document.querySelectorAll(".cell").forEach(c => c.classList.remove("selected"));
+                            selectedCell = cell;
+                            cell.classList.add("selected");
+                        });
+                    }
+                    board.appendChild(cell);
+                }
+            }
+
+            function checkWinCondition() {
+                const cells = document.querySelectorAll(".cell");
+                let complete = true;
+                let correct = true;
+
+                cells.forEach(cell => {
+                    if (!cell.textContent) {
+                        complete = false;
+                    } else if (cell.textContent !== cell.dataset.solution) {
+                        correct = false;
+                    }
+                });
+
+                if (complete) {
+                    clearInterval(timerInterval);
+                    if (correct) {
+                        statusDisplay.textContent = "Solved Successfully! 🎉";
+                        statusDisplay.style.color = "#2e7d32";
+                        streak++;
+                        streakDisplay.textContent = `🔥 Streak: ${streak}`;
+                    } else {
+                        statusDisplay.textContent = "Contains errors. Check highlighted cells.";
+                        statusDisplay.style.color = "#d32f2f";
+                    }
+                }
+            }
+
+            numBtns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    if (!selectedCell || selectedCell.classList.contains("preset")) return;
+                    const oldValue = selectedCell.textContent;
+                    
+                    if (btn.classList.contains("clr-btn")) {
+                        selectedCell.textContent = "";
+                        selectedCell.classList.remove("error");
+                        moveHistory.push({ cell: selectedCell, val: oldValue });
+                    } else {
+                        const num = btn.textContent;
+                        selectedCell.textContent = num;
+                        moveHistory.push({ cell: selectedCell, val: oldValue });
+
+                        if (num !== selectedCell.dataset.solution) {
+                            selectedCell.classList.add("error");
+                        } else {
+                            selectedCell.classList.remove("error");
+                        }
+                    }
+                    checkWinCondition();
+                });
+            });
+
+            undoBtn.addEventListener("click", () => {
+                if (moveHistory.length === 0) return;
+                const lastMove = moveHistory.pop();
+                lastMove.cell.textContent = lastMove.val;
+                lastMove.cell.classList.remove("error");
+                document.querySelectorAll(".cell").forEach(c => c.classList.remove("selected"));
+                selectedCell = lastMove.cell;
+                selectedCell.classList.add("selected");
+            });
+
+            hintBtn.addEventListener("click", () => {
+                if (!selectedCell || selectedCell.classList.contains("preset")) {
+                    statusDisplay.textContent = "Select an empty cell first!";
+                    statusDisplay.style.color = "#d32f2f";
+                    return;
+                }
+                const correctVal = selectedCell.dataset.solution;
+                const oldValue = selectedCell.textContent;
+                selectedCell.textContent = correctVal;
+                selectedCell.classList.remove("error");
+                moveHistory.push({ cell: selectedCell, val: oldValue });
+                statusDisplay.textContent = "Hint applied!";
+                statusDisplay.style.color = "#4a2e5d";
+                checkWinCondition();
+            });
+
+            tabs.forEach(tab => {
+                tab.addEventListener("click", () => {
+                    tabs.forEach(t => t.classList.remove("active"));
+                    tab.classList.add("active");
+                    currentDifficulty = tab.getAttribute("data-diff");
+                    loadBoard(currentDifficulty);
+                });
+            });
+
+            newGameBtn.addEventListener("click", () => {
+                loadBoard(currentDifficulty);
+            });
+
+            loadBoard(currentDifficulty);
+
+            // Feedback modal logic
+            const feedbackBtn = document.getElementById("feedback-btn");
+            const feedbackModal = document.getElementById("feedback-modal");
+            const feedbackCancel = document.getElementById("feedback-cancel");
+            const feedbackSubmit = document.getElementById("feedback-submit");
+            const feedbackText = document.getElementById("feedback-text");
+
+            if (feedbackBtn) {
+                feedbackBtn.addEventListener("click", () => {
+                    feedbackModal.style.display = "flex";
+                    feedbackText.value = "";
+                });
+            }
+
+            if (feedbackCancel) {
+                feedbackCancel.addEventListener("click", () => {
+                    feedbackModal.style.display = "none";
+                });
+            }
+
+            if (feedbackSubmit) {
+                feedbackSubmit.addEventListener("click", () => {
+                    const val = feedbackText.value.trim();
+                    if (val) {
+                        statusDisplay.textContent = "Thank you for your feedback! 🙏";
+                        statusDisplay.style.color = "#4a2e5d";
+                    }
+                    feedbackModal.style.display = "none";
+                });
+            }
+        });
+    </script>
 </body>
 </html>
