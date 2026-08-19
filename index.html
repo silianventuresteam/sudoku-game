@@ -19,10 +19,13 @@
         .app-card { background: #ffffff; padding: 20px 24px; border-radius: 20px; box-shadow: 0 10px 35px rgba(74, 46, 93, 0.08); width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center; border: 1px solid #efe8f3; }
         
         h1 { color: #4a2e5d; font-size: 24px; margin-bottom: 4px; font-weight: 700; text-align: center; }
-        p { color: #666; font-size: 13px; margin-bottom: 16px; text-align: center; }
+        p { color: #666; font-size: 13px; margin-bottom: 12px; text-align: center; }
         
-        .stats-bar { display: flex; gap: 12px; margin-bottom: 16px; }
+        .stats-bar { display: flex; gap: 12px; margin-bottom: 12px; }
         .stat-pill { background: #f3edf6; color: #4a2e5d; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #e2d3ec; }
+        
+        /* Engagement Reminder Banner */
+        .engagement-banner { background: #f3edf6; border: 1px solid #e2d3ec; color: #4a2e5d; padding: 8px 12px; border-radius: 10px; font-size: 11px; font-weight: 600; text-align: center; width: 100%; max-width: 380px; margin-bottom: 14px; }
         
         .diff-tabs { display: flex; background: #f3edf6; padding: 3px; border-radius: 10px; margin-bottom: 18px; width: 100%; }
         .tab { flex: 1; padding: 7px; text-align: center; font-size: 12px; font-weight: 600; color: #666; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; border: none; background: transparent; }
@@ -83,6 +86,10 @@
             <div id="streak" class="stat-pill">🔥 Streak: 0</div>
         </div>
 
+        <div id="engagement-banner" class="engagement-banner">
+            🔥 Streak active! Keep playing today to build higher.
+        </div>
+
         <div class="diff-tabs">
             <button class="tab active" data-diff="easy">Easy</button>
             <button class="tab" data-diff="medium">Medium</button>
@@ -95,8 +102,7 @@
             <div class="action-row">
                 <button id="hint-btn" class="tool-btn">💡 Hint</button>
                 <button id="undo-btn" class="tool-btn">↩️ Undo</button>
-<a href="mailto:jerome@silianventures.com" id="feedback-btn" class="tool-btn" style="text-decoration: none;">💬 Feedback</a>
-                
+                <a href="mailto:jerome@silianventures.com" id="feedback-btn" class="tool-btn" style="text-decoration: none;">💬 Feedback</a>
             </div>
 
         <div class="number-pad">
@@ -118,22 +124,12 @@
         </div>
     </div>
 
-    <div id="feedback-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Send Feedback</h3>
-            <textarea id="feedback-text" placeholder="Share your thoughts..."></textarea>
-            <div class="modal-actions">
-                <button id="feedback-cancel" class="tool-btn" style="flex:unset; padding:6px 12px;">Cancel</button>
-                <button id="feedback-submit" class="primary-btn">Submit</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const board = document.getElementById("board");
             const timerDisplay = document.getElementById("timer");
             const streakDisplay = document.getElementById("streak");
+            const engagementBanner = document.getElementById("engagement-banner");
             const statusDisplay = document.getElementById("game-status");
             const newGameBtn = document.getElementById("new-game");
             const hintBtn = document.getElementById("hint-btn");
@@ -148,6 +144,54 @@
             let currentDifficulty = "easy";
             let moveHistory = [];
             let currentSolutionStr = "";
+
+            // --- Browser Memory Streak Logic ---
+            function initStreak() {
+                const savedStreak = localStorage.getItem("sudoku_streak");
+                const lastPlayDate = localStorage.getItem("sudoku_last_play");
+                const today = new Date().toISOString().split('T')[0];
+
+                if (savedStreak && lastPlayDate) {
+                    const lastDate = new Date(lastPlayDate);
+                    const currentDate = new Date(today);
+                    const diffTime = Math.abs(currentDate - lastDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (lastPlayDate === today) {
+                        // Already played today, keep current streak
+                        streak = parseInt(savedStreak, 10);
+                        engagementBanner.textContent = "🔥 Streak active! Keep playing to build higher.";
+                    } else if (diffDays === 1) {
+                        // Played yesterday, streak is safe waiting for today's win
+                        streak = parseInt(savedStreak, 10);
+                        engagementBanner.textContent = "🔥 Streak active! Keep playing today to build higher.";
+                    } else {
+                        // Missed a day or more, reset streak
+                        streak = 0;
+                        localStorage.setItem("sudoku_streak", 0);
+                        engagementBanner.textContent = "⚡ Streak reset! Play today to start a new run.";
+                    }
+                } else {
+                    streak = 0;
+                    engagementBanner.textContent = "🔥 Welcome! Solve a puzzle today to start your streak.";
+                }
+                streakDisplay.textContent = `🔥 Streak: ${streak}`;
+            }
+
+            function recordWinStreak() {
+                const today = new Date().toISOString().split('T')[0];
+                const lastPlayDate = localStorage.getItem("sudoku_last_play");
+
+                if (lastPlayDate !== today) {
+                    streak++;
+                    localStorage.setItem("sudoku_streak", streak);
+                    localStorage.setItem("sudoku_last_play", today);
+                }
+                streakDisplay.textContent = `🔥 Streak: ${streak}`;
+                engagementBanner.textContent = "🔥 Streak active! Keep playing to build higher.";
+            }
+
+            initStreak();
 
             function startTimer() {
                 clearInterval(timerInterval);
@@ -270,8 +314,8 @@
                     if (correct) {
                         statusDisplay.textContent = "Solved Successfully! 🎉";
                         statusDisplay.style.color = "#2e7d32";
-                        streak++;
-                        streakDisplay.textContent = `🔥 Streak: ${streak}`;
+                        
+                        recordWinStreak();
 
                         // --- Trigger Geometric Confetti Burst ---
                         const count = 200;
@@ -283,32 +327,10 @@
                             }));
                         }
 
-                        fire(0.25, {
-                            spread: 26,
-                            startVelocity: 55,
-                            shapes: ['circle', 'square', 'triangle'],
-                            colors: ['#00acc1', '#ff8f00', '#fbc02d', '#7b1fa2', '#d32f2f']
-                        });
-                        fire(0.2, {
-                            spread: 60,
-                            shapes: ['circle'],
-                            colors: ['#00acc1', '#fbc02d']
-                        });
-                        fire(0.35, {
-                            spread: 100,
-                            decay: 0.91,
-                            scalar: 0.8,
-                            shapes: ['circle', 'triangle'],
-                            colors: ['#ff8f00', '#7b1fa2', '#d32f2f']
-                        });
-                        fire(0.1, {
-                            spread: 120,
-                            startVelocity: 25,
-                            decay: 0.92,
-                            scalar: 1.2,
-                            shapes: ['star'],
-                            colors: ['#00acc1', '#fbc02d']
-                        });
+                        fire(0.25, { spread: 26, startVelocity: 55, shapes: ['circle', 'square', 'triangle'], colors: ['#00acc1', '#ff8f00', '#fbc02d', '#7b1fa2', '#d32f2f'] });
+                        fire(0.2, { spread: 60, shapes: ['circle'], colors: ['#00acc1', '#fbc02d'] });
+                        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, shapes: ['circle', 'triangle'], colors: ['#ff8f00', '#7b1fa2', '#d32f2f'] });
+                        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, shapes: ['star'], colors: ['#00acc1', '#fbc02d'] });
 
                         // --- Show Victory Share Modal ---
                         const timeStr = timerDisplay.textContent;
@@ -330,7 +352,7 @@
 
                         // Modal button listeners
                         document.getElementById('shareButton').addEventListener('click', () => {
-                          const shareText = `I just beat the ${currentDifficulty} Sudoku in ${timeStr.replace('⏱️ ', '')}! Can you beat my time? Play here: https://sudoku.silianventures.com`;
+                          const shareText = `I just beat the ${currentDifficulty} Sudoku in ${timeStr.replace('⏱️ ', '')} with a 🔥 ${streak}-day streak! Can you beat my score? Play here: https://sudoku.silianventures.com`;
                           navigator.clipboard.writeText(shareText).then(() => {
                             alert('Result copied to clipboard! Paste it to share with friends.');
                           });
