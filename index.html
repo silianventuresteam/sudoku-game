@@ -56,9 +56,6 @@
         .primary-btn { background: #4a2e5d; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .primary-btn:hover { background: #3b234a; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
-        .modal-content { background: #ffffff; padding: 20px; border-radius: 14px; width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); }
-        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -139,7 +136,7 @@
         </div>
     </div>
 
-    <!-- Email Subscription Pop-up Overlay -->
+    <!-- Email Subscription Pop-up Overlay (Always triggers after 10s) -->
     <div id="auth-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; justify-content: center; align-items: center; animation: fadeIn 0.3s;">
         <div style="background: white; padding: 28px 24px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-width: 340px; width: 90%;">
             <span id="close-auth-modal" style="position: absolute; top: 12px; right: 18px; font-size: 22px; cursor: pointer; color: #666;">&times;</span>
@@ -187,15 +184,13 @@
             let moveHistory = [];
             let currentSolutionStr = "";
 
-            if (!localStorage.getItem("sub_captured")) {
-                setTimeout(() => {
-                    authModal.style.display = "flex";
-                }, 10000);
-            }
+            // Constant trigger: pops up on every page visit after 10 seconds
+            setTimeout(() => {
+                authModal.style.display = "flex";
+            }, 10000);
 
             closeAuthModalBtn.addEventListener("click", () => {
                 authModal.style.display = "none";
-                localStorage.setItem("sub_captured", "true");
             });
 
             function handleAuthSubmission(providerName) {
@@ -203,7 +198,6 @@
                 if (!userEmail || !userEmail.includes("@")) return;
 
                 authModal.style.display = "none";
-                localStorage.setItem("sub_captured", "true");
 
                 if (SHEET_WEBHOOK_URL && SHEET_WEBHOOK_URL !== "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
                     fetch(SHEET_WEBHOOK_URL, {
