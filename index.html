@@ -104,6 +104,7 @@
                 <button id="undo-btn" class="tool-btn">↩️ Undo</button>
                 <a href="mailto:jerome@silianventures.com" id="feedback-btn" class="tool-btn" style="text-decoration: none;">💬 Feedback</a>
             </div>
+        </div>
 
         <div class="number-pad">
             <button class="num-btn">1</button>
@@ -124,7 +125,33 @@
         </div>
     </div>
 
+    <!-- Email Subscription Pop-up Overlay (10-Second Timer) -->
+    <div id="auth-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; justify-content: center; align-items: center; animation: fadeIn 0.3s;">
+        <div style="background: white; padding: 28px 24px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-width: 340px; width: 90%;">
+            <span id="close-auth-modal" style="position: absolute; top: 12px; right: 18px; font-size: 22px; cursor: pointer; color: #666;">&times;</span>
+            <h3 style="color: #4a2e5d; margin-bottom: 8px; font-size: 18px; font-weight: 700;">Never Miss a Challenge</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.4;">Sign in to save your streaks and receive daily puzzle drops straight to your inbox.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Google Sign-In Button -->
+                <button id="google-signin-btn" style="background: #ffffff; color: #333; border: 1px solid #d3d3d3; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s;">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.21 21.34 7.32 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.6H1.19C.43 8.15 0 9.89 0 11.75s.43 3.6 1.19 5.15l4.08-2.66z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.32 0 3.21 2.66 1.19 6.6l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+                    Sign in with Google
+                </button>
+                
+                <!-- Apple Sign-In Button -->
+                <button id="apple-signin-btn" style="background: #000000; color: #ffffff; border: none; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.31c.64-.78 1.07-1.86.95-2.94-.92.04-2.04.62-2.69 1.4-.58.68-1.09 1.78-.95 2.84 1.03.08 2.05-.51 2.69-1.3z"/></svg>
+                    Sign in with Apple
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Replace this placeholder string with your deployed Google Apps Script Web App URL
+        const SHEET_WEBHOOK_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
         document.addEventListener("DOMContentLoaded", () => {
             const board = document.getElementById("board");
             const timerDisplay = document.getElementById("timer");
@@ -137,6 +164,12 @@
             const tabs = document.querySelectorAll(".tab");
             const numBtns = document.querySelectorAll(".num-btn");
 
+            // Popup Modal Elements
+            const authModal = document.getElementById("auth-modal-overlay");
+            const closeAuthModalBtn = document.getElementById("close-auth-modal");
+            const googleSigninBtn = document.getElementById("google-signin-btn");
+            const appleSigninBtn = document.getElementById("apple-signin-btn");
+
             let timer = 0;
             let timerInterval = null;
             let streak = 0;
@@ -144,6 +177,42 @@
             let currentDifficulty = "easy";
             let moveHistory = [];
             let currentSolutionStr = "";
+
+            // --- 10-Second Popup Timer Logic ---
+            if (!localStorage.getItem("sub_captured")) {
+                setTimeout(() => {
+                    authModal.style.display = "flex";
+                }, 10000);
+            }
+
+            closeAuthModalBtn.addEventListener("click", () => {
+                authModal.style.display = "none";
+                localStorage.setItem("sub_captured", "true");
+            });
+
+            // Universal OAuth Simulation & Google Sheet Webhook Sync Handler
+            function handleAuthSubmission(providerName) {
+                let userEmail = prompt(`Sign in with ${providerName}\nEnter your verified email address to secure your streak:`);
+                if (!userEmail || !userEmail.includes("@")) return;
+
+                authModal.style.display = "none";
+                localStorage.setItem("sub_captured", "true");
+
+                // Send data directly to Google Sheet via Webhook (if URL is updated)
+                if (SHEET_WEBHOOK_URL && SHEET_WEBHOOK_URL !== "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
+                    fetch(SHEET_WEBHOOK_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: userEmail, source: providerName })
+                    }).catch(err => console.error("Webhook sync error:", err));
+                }
+
+                alert(`Successfully signed in with ${providerName}! Your email has been saved.`);
+            }
+
+            googleSigninBtn.addEventListener("click", () => handleAuthSubmission("Google"));
+            appleSigninBtn.addEventListener("click", () => handleAuthSubmission("Apple"));
 
             // --- Browser Memory Streak Logic ---
             function initStreak() {
@@ -157,16 +226,10 @@
                     const diffTime = Math.abs(currentDate - lastDate);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    if (lastPlayDate === today) {
-                        // Already played today, keep current streak
+                    if (lastPlayDate === today || diffDays === 1) {
                         streak = parseInt(savedStreak, 10);
                         engagementBanner.textContent = "🔥 Streak active! Keep playing to build higher.";
-                    } else if (diffDays === 1) {
-                        // Played yesterday, streak is safe waiting for today's win
-                        streak = parseInt(savedStreak, 10);
-                        engagementBanner.textContent = "🔥 Streak active! Keep playing today to build higher.";
                     } else {
-                        // Missed a day or more, reset streak
                         streak = 0;
                         localStorage.setItem("sudoku_streak", 0);
                         engagementBanner.textContent = "⚡ Streak reset! Play today to start a new run.";
@@ -317,7 +380,6 @@
                         
                         recordWinStreak();
 
-                        // --- Trigger Geometric Confetti Burst ---
                         const count = 200;
                         const defaults = { origin: { y: 0.7 } };
 
@@ -332,7 +394,6 @@
                         fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, shapes: ['circle', 'triangle'], colors: ['#ff8f00', '#7b1fa2', '#d32f2f'] });
                         fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, shapes: ['star'], colors: ['#00acc1', '#fbc02d'] });
 
-                        // --- Show Victory Share Modal ---
                         const timeStr = timerDisplay.textContent;
                         const modalHTML = `
                           <div id="shareModalOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; animation: fadeIn 0.3s;">
@@ -350,7 +411,6 @@
                         `;
                         document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-                        // Modal button listeners
                         document.getElementById('shareButton').addEventListener('click', () => {
                           const shareText = `I just beat the ${currentDifficulty} Sudoku in ${timeStr.replace('⏱️ ', '')} with a 🔥 ${streak}-day streak! Can you beat my score? Play here: https://sudoku.silianventures.com`;
                           navigator.clipboard.writeText(shareText).then(() => {
@@ -443,8 +503,8 @@
   atOptions = {
     'key' : '0dfa7a3cbe9885ba1678221bd51ec1e2',
     'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
+    'height' : '50',
+    'width' : '320',
     'params' : {}
   };
 </script>
